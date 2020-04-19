@@ -4,6 +4,8 @@
 #include "FPSExtractionZone.h"
 #include "Components/BoxComponent.h"
 #include "components/DecalComponent.h"
+#include "FPSCharacter.h"
+#include "FPSGameMode.h"
 
 // Sets default values
 AFPSExtractionZone::AFPSExtractionZone()
@@ -35,11 +37,23 @@ AFPSExtractionZone::AFPSExtractionZone()
 
 void AFPSExtractionZone::HandleOverlap(UPrimitiveComponent* OverlappedComponent, 
 	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
+{	
+	AFPSCharacter * Pawn = Cast<AFPSCharacter>(OtherActor);
 
-	UE_LOG(LogTemp, Log, TEXT("Overlap Event!"));
+	if (Pawn&&Pawn->bIsCarryingObjective)
+	{
+		AFPSGameMode* GM = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
+		if (GM) 
+		{	
+			UE_LOG(LogTemp, Log, TEXT("Mission Completed!"));
+			GM->CompleteMission(Pawn);
+		}
 
-
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Find the object first!"));
+	}
 }
 
 
