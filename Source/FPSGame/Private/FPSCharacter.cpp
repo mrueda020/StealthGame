@@ -66,6 +66,7 @@ void AFPSCharacter::Fire()
 	if (FireSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+		PlayEffects(ExplosionEffect);
 	}
 
 	// try and play a firing animation if specified
@@ -98,4 +99,11 @@ void AFPSCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(GetActorRightVector(), Value);
 	}
+}
+
+
+void AFPSCharacter::PlayEffects(UParticleSystem* Effect)
+{	
+	FVector MuzzleLocation = GunMeshComponent->GetSocketLocation("Muzzle");
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Effect, MuzzleLocation);
 }
