@@ -3,8 +3,11 @@
 #include "FPSProjectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 
-AFPSProjectile::AFPSProjectile() 
+
+
+AFPSProjectile::AFPSProjectile()
 {
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
@@ -39,6 +42,15 @@ void AFPSProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 	{
 		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 
+		
+
 		Destroy();
 	}
+
+	PlayEffects(ExplosionEffect);
+}
+
+void AFPSProjectile::PlayEffects(UParticleSystem* Effect)
+{
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Effect,GetActorLocation());
 }

@@ -26,6 +26,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	UProjectileMovementComponent* ProjectileMovement;
 
+	UPROPERTY(EditDefaultsOnly, Category="ParticleSystem")
+	UParticleSystem* ExplosionEffect;
+
+	void PlayEffects(UParticleSystem* Effect);
+
 public:
 
 	AFPSProjectile();

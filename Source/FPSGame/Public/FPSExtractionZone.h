@@ -29,6 +29,9 @@ protected:
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* MissingObjectSound;
+
 
 
 };
