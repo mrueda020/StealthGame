@@ -31,7 +31,7 @@ void AFPSLaunchPad::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 {
 	//We obtain the direction
 	FRotator LaunchDirection = GetActorRotation();
-	//With Pitch we moce in the rigth direction (Y-axis)
+	//With Pitch we move in the rigth direction (Y-axis)
 	LaunchDirection.Pitch += LauchPitchAngle;
 	//We convert our direction to an vector
 	FVector LauchVelocity = LaunchDirection.Vector() * LauchStrength;
@@ -39,14 +39,14 @@ void AFPSLaunchPad::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	//We cast out Actor to a Character
 	ACharacter* OtherCharacter = Cast<ACharacter>(OtherActor);
 	if (OtherCharacter)
-	{	//We Lauch the Character, the boolenas give consistant velocity by ignoring the character current velocity
+	{	//We Lauch the Character, the booleans give consistant velocity by ignoring the character current velocity
 		OtherCharacter->LaunchCharacter(LauchVelocity, true, true);
 		//Spawn a fx effect
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), LaunchPadEffect, GetActorLocation());
 
 
 	}
-	//If the cast fails it means that is a other component
+	//If the cast fails it means that is an other component
 	else if(OtherComp&&OtherComp->IsSimulatingPhysics())
 	{
 		//Is the same logic from above but we use AddImpulse method
