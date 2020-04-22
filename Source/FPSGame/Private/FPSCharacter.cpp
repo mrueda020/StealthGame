@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 
 
+
 AFPSCharacter::AFPSCharacter()
 {
 	// Create a CameraComponent	

@@ -14,6 +14,7 @@ class USoundBase;
 class UAnimSequence;
 
 
+
 UCLASS()
 class AFPSCharacter : public ACharacter
 {

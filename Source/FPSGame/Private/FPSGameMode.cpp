@@ -4,6 +4,10 @@
 #include "FPSHUD.h"
 #include "FPSCharacter.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Kismet/GameplayStatics.h"
+#include "FPSBlackHole.h"
+#include "Engine/World.h"
+#include "GameFramework/Actor.h"
 
 AFPSGameMode::AFPSGameMode()
 {
@@ -13,6 +17,9 @@ AFPSGameMode::AFPSGameMode()
 
 	// use our custom HUD class
 	HUDClass = AFPSHUD::StaticClass();
+
+	
+	
 }
 
 void AFPSGameMode::CompleteMission(APawn* InstigatorPawn)
@@ -20,6 +27,37 @@ void AFPSGameMode::CompleteMission(APawn* InstigatorPawn)
 	if (InstigatorPawn)
 	{
 		InstigatorPawn->DisableInput(nullptr);
+
+		if (SpectatorViewpointClass)
+		{
+
+			TArray<AActor*> ReturnedActors;
+			UGameplayStatics::GetAllActorsOfClass(this, SpectatorViewpointClass,ReturnedActors);
+
+			if (ReturnedActors.Num() > 0)
+			{
+				AActor* NewViewTarget = ReturnedActors[0];
+				APlayerController* PC = Cast<APlayerController>(InstigatorPawn->GetController());
+				PC->SetViewTargetWithBlend(NewViewTarget, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
+				/**if (BlackHoleClass)
+				{
+					FActorSpawnParameters ActorSpawnParams;
+					ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+					GetWorld()->SpawnActor<AFPSBlackHole>(BlackHoleClass, FVector(-600.0f, -80.0f, 1740.0f), FRotator(0), ActorSpawnParams);
+					UE_LOG(LogTemp,Warning,TEXT("BlackHole should appear!!"));
+				}*/
+				
+			}
+
+
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Invalid Actors"));
+
+		}
+
+
 	}
 
 

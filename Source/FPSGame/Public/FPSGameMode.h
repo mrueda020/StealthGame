@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "FPSGameMode.generated.h"
 
+class AFPSBlackHole;
+
 UCLASS()
 class AFPSGameMode : public AGameModeBase
 {
@@ -20,6 +22,14 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
 		void OnMissionCompleted(APawn* InstigatorPawn);
+
+
+protected:
+	UPROPERTY(EditDefaultsOnly,Category = "Spectator")
+	TSubclassOf<AActor> SpectatorViewpointClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "BlackHole")
+	TSubclassOf<AFPSBlackHole> BlackHoleClass;
 
 };
 
