@@ -22,7 +22,20 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-		UPawnSensingComponent* PawnSensingComp;
+	UPawnSensingComponent* PawnSensingComp;
+
+	UFUNCTION()
+	void OnPawnSeen(APawn* SeenPawn);
+
+
+	UFUNCTION()
+	void OnNoiseHeard(APawn* HeardInstigator, const FVector& Location, float Volume);
+
+	FRotator OriginalRotation;
+
+	FTimerHandle TimerHandle_ResetOrientation;
+
+	void ResetOrientation();
 
 public:	
 	// Called every frame
