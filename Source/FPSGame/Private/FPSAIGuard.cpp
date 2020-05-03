@@ -5,6 +5,7 @@
 #include "Perception/PawnSensingComponent.h"
 #include "DrawDebugHelpers.h"
 #include "TimerManager.h"
+#include "FPSGameMode.h"
 
 // Sets default values
 AFPSAIGuard::AFPSAIGuard()
@@ -14,7 +15,7 @@ AFPSAIGuard::AFPSAIGuard()
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
 	PawnSensingComp->OnSeePawn.AddDynamic(this, &AFPSAIGuard::OnPawnSeen);
 	PawnSensingComp->OnHearNoise.AddDynamic(this, &AFPSAIGuard::OnNoiseHeard);
-
+	GuardState = EGuardState::Idle;
 
 }
 
@@ -34,26 +35,45 @@ void AFPSAIGuard::OnPawnSeen(APawn* SeenPawn)
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Pawn seen!"));
 	DrawDebugSphere(GetWorld(), SeenPawn->GetActorLocation(), 30.0f, 12, FColor::Red, false, 10.0f);
+
+	AFPSGameMode* GM = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
+	if (GM)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Mission failed!"));
+		GM->CompleteMission(SeenPawn, false);
+	}
+
+	SetGuardState(EGuardState::Alerted);
+
+
 }
 
 
 void AFPSAIGuard::OnNoiseHeard(APawn* HeardInstigator, const FVector& Location, float Volume)
 {	
-	DrawDebugSphere(GetWorld(), Location, 30.0f, 12, FColor::Green, false, 10.0f);
-	FVector Direction = Location - GetActorLocation();
-	Direction.Normalize();
-	FRotator NewRotation = FRotationMatrix::MakeFromX(Direction).Rotator();
-	NewRotation.Pitch = 0.0f;
-	NewRotation.Roll = 0.0f;
-	SetActorRotation(NewRotation);
-	GetWorldTimerManager().ClearTimer(TimerHandle_ResetOrientation);
-	GetWorldTimerManager().SetTimer(TimerHandle_ResetOrientation, this, &AFPSAIGuard::ResetOrientation, 3.0f);
+	if (GuardState != EGuardState::Alerted)
+	{
+		DrawDebugSphere(GetWorld(), Location, 30.0f, 12, FColor::Green, false, 10.0f);
+		FVector Direction = Location - GetActorLocation();
+		Direction.Normalize();
+		FRotator NewRotation = FRotationMatrix::MakeFromX(Direction).Rotator();
+		NewRotation.Pitch = 0.0f;
+		NewRotation.Roll = 0.0f;
+		SetActorRotation(NewRotation);
+		GetWorldTimerManager().ClearTimer(TimerHandle_ResetOrientation);
+		GetWorldTimerManager().SetTimer(TimerHandle_ResetOrientation, this, &AFPSAIGuard::ResetOrientation, 3.0f);
+		SetGuardState(EGuardState::Suspicious);
+	}
 }
 
 
 void AFPSAIGuard::ResetOrientation()
 {
-	SetActorRotation(OriginalRotation);
+	if (GuardState != EGuardState::Alerted)
+	{
+		SetActorRotation(OriginalRotation);
+		SetGuardState(EGuardState::Idle);
+	}
 }
 
 // Called every frame
@@ -64,4 +84,14 @@ void AFPSAIGuard::Tick(float DeltaTime)
 }
 
 
+void  AFPSAIGuard::SetGuardState(EGuardState NewState)
+{
 
+	if (GuardState == NewState)
+	{
+		return;
+	}
+
+	GuardState = NewState;
+	OnGuardStateChange(GuardState);
+}

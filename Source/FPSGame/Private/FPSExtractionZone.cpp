@@ -53,7 +53,7 @@ void AFPSExtractionZone::HandleOverlap(UPrimitiveComponent* OverlappedComponent,
 		if (GM) 
 		{	
 			UE_LOG(LogTemp, Log, TEXT("Mission Completed!"));
-			GM->CompleteMission(Pawn);
+			GM->CompleteMission(Pawn,true);
 		}
 
 	}
