@@ -25,6 +25,7 @@ void AFPSAIGuard::BeginPlay()
 {
 	Super::BeginPlay();
 	OriginalRotation = GetActorRotation();
+	CurrentTargetPoint = TargetPoints[0];
 	if (bPatrol)
 	{
 		MoveToNextPatrolPoint();
@@ -113,7 +114,7 @@ void AFPSAIGuard::MoveToNextPatrolPoint()
 
 	for (int32 i = 0; i<TotalPatrolPoints;i++)
 	{
-		if (TargetPoints[i] == CurrentTargetPoint || CurrentTargetPoint == nullptr)
+		if (TargetPoints[i] == CurrentTargetPoint)
 		{
 	
 			if (i < TotalPatrolPoints-1)
