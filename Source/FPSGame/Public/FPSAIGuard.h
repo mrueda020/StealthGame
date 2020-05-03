@@ -55,6 +55,20 @@ protected:
 
 	void ResetOrientation();
 
+
+	UPROPERTY(EditInstanceOnly, Category = "AI")
+	bool bPatrol;
+
+	UPROPERTY(EditInstanceOnly, Category = "AI", meta =(EditCondition = "bPatrol" ))
+	TArray<AActor*> TargetPoints;
+
+	
+
+	AActor* CurrentTargetPoint;
+
+	void MoveToNextPatrolPoint();
+
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
