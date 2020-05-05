@@ -32,6 +32,21 @@ AFPSCharacter::AFPSCharacter()
 	NoiseEmitterComponent = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("NoiseEmitterComponent"));
 }
 
+void AFPSCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	//We check is the character is a client or is the host
+	if (!IsLocallyControlled())
+	{   //RemoteViewPitch is a replicated property, so that you can see where remote clients are looking
+		FRotator ClientRotation = CameraComponent->RelativeRotation;
+		//We multiply by 360.0f and divde by 255.0f because RemoteViewPitch is compressed to 1 byte 
+		ClientRotation.Pitch = RemoteViewPitch * 360.0f / 255.0f;
+		//We set the new rotation
+		CameraComponent->SetRelativeRotation(ClientRotation);
+	}
+	
+}
+
 
 void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -51,19 +66,9 @@ void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void AFPSCharacter::Fire()
 {
-	// try and fire a projectile
-	if (ProjectileClass)
-	{
-		FVector MuzzleLocation = GunMeshComponent->GetSocketLocation("Muzzle");
-		FRotator MuzzleRotation = GunMeshComponent->GetSocketRotation("Muzzle");
+	ServerFire();
 
-		//Set Spawn Collision Handling Override
-		FActorSpawnParameters ActorSpawnParams;
-		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-		ActorSpawnParams.Instigator = this;
-		// spawn the projectile at the muzzle
-		GetWorld()->SpawnActor<AFPSProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
-	}
+	
 
 	// try and play the sound if specified
 	if (FireSound)
@@ -109,4 +114,32 @@ void AFPSCharacter::PlayEffects(UParticleSystem* Effect)
 {	
 	FVector MuzzleLocation = GunMeshComponent->GetSocketLocation("Muzzle");
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Effect, MuzzleLocation);
+}
+
+void AFPSCharacter::ServerFire_Implementation()
+{
+	
+	// try and fire a projectile
+	if (ProjectileClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("The client is supposed to shoot"))
+		FVector MuzzleLocation = GunMeshComponent->GetSocketLocation("Muzzle");
+		FRotator MuzzleRotation = GunMeshComponent->GetSocketRotation("Muzzle");
+
+		//Set Spawn Collision Handling Override
+		FActorSpawnParameters ActorSpawnParams;
+		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+		ActorSpawnParams.Instigator = this;
+
+		// spawn the projectile at the muzzle
+		GetWorld()->SpawnActor<AFPSProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
+	}
+	
+
+}
+
+bool AFPSCharacter::ServerFire_Validate()
+{
+	return true;
+
 }

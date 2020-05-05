@@ -32,6 +32,11 @@ AFPSProjectile::AFPSProjectile()
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
+
+	//this actor replicates to network clients.
+	SetReplicates(true);
+	//Set whether this actor's movement replicates to network clients.
+	SetReplicateMovement(true);
 }
 
 
@@ -43,12 +48,18 @@ void AFPSProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 	
 	}
-	MakeNoise(1.0f, Instigator);
-	PlayEffects(ExplosionEffect);
-	Destroy();
+	//We check if we are in the host because AI only runs on server
+	if (Role == ROLE_Authority)
+	{
+		MakeNoise(1.0f, Instigator);
+		PlayEffects(ExplosionEffect);
+		Destroy();
+	}
+	
 }
 
 void AFPSProjectile::PlayEffects(UParticleSystem* Effect)
 {
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Effect,GetActorLocation());
 }
+

@@ -74,12 +74,20 @@ protected:
 
 	void PlayEffects(UParticleSystem* Effect);
 
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerFire();
+
+
 public:
 	/** Returns Mesh1P subobject **/
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1PComponent; }
 
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return CameraComponent; }
+
+
+	virtual void Tick(float DeltaTime) override;
 
 };
 

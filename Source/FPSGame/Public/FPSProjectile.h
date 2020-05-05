@@ -31,6 +31,8 @@ protected:
 
 	void PlayEffects(UParticleSystem* Effect);
 
+	
+
 public:
 
 	AFPSProjectile();

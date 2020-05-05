@@ -140,8 +140,7 @@ void AFPSAIGuard::MoveToNextPatrolPoint()
 void AFPSAIGuard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (CurrentTargetPoint == nullptr)
-		UE_LOG(LogTemp, Warning, TEXT("NO TargetPoint!!"));
+	
 
 	if (CurrentTargetPoint)
 	{
