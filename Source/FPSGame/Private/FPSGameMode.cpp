@@ -8,6 +8,8 @@
 #include "FPSBlackHole.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "FPSGameStateBase.h"
+
 
 AFPSGameMode::AFPSGameMode()
 {
@@ -18,7 +20,7 @@ AFPSGameMode::AFPSGameMode()
 	// use our custom HUD class
 	HUDClass = AFPSHUD::StaticClass();
 
-	
+	GameStateClass = AFPSGameStateBase::StaticClass();
 	
 }
 
@@ -60,6 +62,11 @@ void AFPSGameMode::CompleteMission(APawn* InstigatorPawn, bool bIsMissionSuccess
 
 	}
 
+	AFPSGameStateBase* GS = GetGameState<AFPSGameStateBase>();
+	if (GS)
+	{
+		GS->MulticastOnMissionComplete(InstigatorPawn, bIsMissionSuccessful);
+	}
 
 	OnMissionCompleted(InstigatorPawn, bIsMissionSuccessful);
 }
