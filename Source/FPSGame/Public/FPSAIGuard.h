@@ -45,8 +45,12 @@ protected:
 	FRotator OriginalRotation;
 
 	FTimerHandle TimerHandle_ResetOrientation;
-
+	//specifies a callback function which is executed when the property is updated over the network.
+	UPROPERTY(ReplicatedUsing = OnRep_GuardStateChange)
 	EGuardState GuardState;
+	// callback function
+	UFUNCTION()
+	void OnRep_GuardStateChange();
 
 	void SetGuardState(EGuardState NewState);
 
@@ -72,5 +76,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	//Returns the properties used for network replication
+	virtual void GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const override;
 };
