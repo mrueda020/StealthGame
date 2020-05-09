@@ -3,15 +3,27 @@
 
 #include "FPSGameStateBase.h"
 #include "UObject/UObjectIterator.h"
+#include "FPSPlayerController.h"
 
+//We disable the input for each controlled pawn
 void AFPSGameStateBase::MulticastOnMissionComplete_Implementation(APawn* InstigatorPawn, bool bIsMissionSuccessful)
 {
-	
-	for (TObjectIterator<APawn> Itr; Itr; ++Itr)
+	for (TObjectIterator<APlayerController>Itr; Itr; ++Itr)
 	{
-		if (Itr && Itr->IsLocallyControlled())
+		APawn* Pawn = Itr->GetPawn();
+		
+		if (Pawn && Pawn->IsLocallyControlled())
 		{
-			Itr->DisableInput(nullptr);
+			AFPSPlayerController* PC = Cast<AFPSPlayerController>(Pawn->GetController());
+			if (PC)
+			{
+				PC->OnMissionCompleted(InstigatorPawn, bIsMissionSuccessful);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("APlayerController cast fails"));
+			}
+			Pawn->DisableInput(nullptr);
 		}
 	}
 }

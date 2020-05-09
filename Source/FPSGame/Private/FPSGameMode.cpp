@@ -9,7 +9,7 @@
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "FPSGameStateBase.h"
-
+#include "UObject/UObjectIterator.h"
 
 AFPSGameMode::AFPSGameMode()
 {
@@ -20,27 +20,37 @@ AFPSGameMode::AFPSGameMode()
 	// use our custom HUD class
 	HUDClass = AFPSHUD::StaticClass();
 
+	// set the GameStateClass 
 	GameStateClass = AFPSGameStateBase::StaticClass();
 	
 }
 
 void AFPSGameMode::CompleteMission(APawn* InstigatorPawn, bool bIsMissionSuccessful)
-{
+{	//Verify if InstigatorPawn exits
 	if (InstigatorPawn)
 	{
-		InstigatorPawn->DisableInput(nullptr);
-
 		if (SpectatorViewpointClass)
 		{
-
 			TArray<AActor*> ReturnedActors;
 			UGameplayStatics::GetAllActorsOfClass(this, SpectatorViewpointClass,ReturnedActors);
-
 			if (ReturnedActors.Num() > 0)
 			{
 				AActor* NewViewTarget = ReturnedActors[0];
-				APlayerController* PC = Cast<APlayerController>(InstigatorPawn->GetController());
-				PC->SetViewTargetWithBlend(NewViewTarget, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
+				//We changed the view target for each controlled pawn
+				for (TObjectIterator<AActor>Itr; Itr; ++Itr)
+				{	
+					APlayerController* PC = Cast<APlayerController>(Itr->GetInstigatorController());
+					if (PC)
+					{
+						PC->SetViewTargetWithBlend(NewViewTarget, 0.5f, EViewTargetBlendFunction::VTBlend_Cubic);
+					}
+					else
+					{	
+						UE_LOG(LogTemp, Warning, TEXT("PlayerController cast failed"));
+					}
+						
+				}
+				
 				/**if (BlackHoleClass)
 				{
 					FActorSpawnParameters ActorSpawnParams;
@@ -50,16 +60,12 @@ void AFPSGameMode::CompleteMission(APawn* InstigatorPawn, bool bIsMissionSuccess
 				}*/
 				
 			}
-
-
 		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Invalid Actors"));
 
 		}
-
-
 	}
 
 	AFPSGameStateBase* GS = GetGameState<AFPSGameStateBase>();
@@ -67,6 +73,6 @@ void AFPSGameMode::CompleteMission(APawn* InstigatorPawn, bool bIsMissionSuccess
 	{
 		GS->MulticastOnMissionComplete(InstigatorPawn, bIsMissionSuccessful);
 	}
-
+	//This function belongs to the FPSPlayerController class
 	OnMissionCompleted(InstigatorPawn, bIsMissionSuccessful);
 }
