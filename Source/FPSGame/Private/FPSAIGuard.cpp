@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "FPSAIGuard.h"
 #include "Perception/PawnSensingComponent.h"
 #include "DrawDebugHelpers.h"
@@ -12,13 +11,12 @@
 // Sets default values
 AFPSAIGuard::AFPSAIGuard()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
 	PawnSensingComp->OnSeePawn.AddDynamic(this, &AFPSAIGuard::OnPawnSeen);
 	PawnSensingComp->OnHearNoise.AddDynamic(this, &AFPSAIGuard::OnNoiseHeard);
 	GuardState = EGuardState::Idle;
-
 }
 
 // Called when the game starts or when spawned
@@ -26,16 +24,16 @@ void AFPSAIGuard::BeginPlay()
 {
 	Super::BeginPlay();
 	OriginalRotation = GetActorRotation();
-	
+
 	if (bPatrol)
-	{	
+	{
 		CurrentTargetPoint = TargetPoints[0];
 		MoveToNextPatrolPoint();
 	}
 }
 
-void AFPSAIGuard::OnPawnSeen(APawn* SeenPawn)
-{	//We check is the player pawn exists and is seen by the guard
+void AFPSAIGuard::OnPawnSeen(APawn *SeenPawn)
+{ //We check is the player pawn exists and is seen by the guard
 	if (SeenPawn == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Pawn not seen!"));
@@ -48,28 +46,24 @@ void AFPSAIGuard::OnPawnSeen(APawn* SeenPawn)
 	//The GuardStae change to alerted
 	SetGuardState(EGuardState::Alerted);
 	//The guard stops moving
-	auto* Controller = GetController();
+	auto *Controller = GetController();
 	if (Controller)
 	{
 		Controller->StopMovement();
 	}
-	
-	//The mission is finished and is gameover 
-	AFPSGameMode* GM = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
+
+	//The mission is finished and is gameover
+	AFPSGameMode *GM = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
 	if (GM)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Mission failed!"));
 		//The mission was not successful
 		GM->CompleteMission(SeenPawn, false);
 	}
-
-	
-
 }
 
-
-void AFPSAIGuard::OnNoiseHeard(APawn* HeardInstigator, const FVector& Location, float Volume)
-{	
+void AFPSAIGuard::OnNoiseHeard(APawn *HeardInstigator, const FVector &Location, float Volume)
+{
 	//If the guard is not alerted
 	if (GuardState != EGuardState::Alerted)
 	{
@@ -87,7 +81,7 @@ void AFPSAIGuard::OnNoiseHeard(APawn* HeardInstigator, const FVector& Location, 
 		GetWorldTimerManager().ClearTimer(TimerHandle_ResetOrientation);
 		GetWorldTimerManager().SetTimer(TimerHandle_ResetOrientation, this, &AFPSAIGuard::ResetOrientation, 3.0f);
 		SetGuardState(EGuardState::Suspicious);
-		auto* Controller = GetController();
+		auto *Controller = GetController();
 		if (Controller)
 		{
 			Controller->StopMovement();
@@ -95,7 +89,7 @@ void AFPSAIGuard::OnNoiseHeard(APawn* HeardInstigator, const FVector& Location, 
 	}
 }
 
-//Resets the GuardState and continue the Patrol 
+//Resets the GuardState and continue the Patrol
 void AFPSAIGuard::ResetOrientation()
 {
 	if (GuardState != EGuardState::Alerted)
@@ -105,7 +99,6 @@ void AFPSAIGuard::ResetOrientation()
 
 		if (bPatrol)
 			MoveToNextPatrolPoint();
-
 	}
 }
 
@@ -114,14 +107,14 @@ void AFPSAIGuard::MoveToNextPatrolPoint()
 {
 	int32 TotalPatrolPoints = TargetPoints.Num();
 
-	for (int32 i = 0; i<TotalPatrolPoints;i++)
+	for (int32 i = 0; i < TotalPatrolPoints; i++)
 	{
 		if (TargetPoints[i] == CurrentTargetPoint)
 		{
-	
-			if (i < TotalPatrolPoints-1)
+
+			if (i < TotalPatrolPoints - 1)
 			{
-				CurrentTargetPoint = TargetPoints[i+1];
+				CurrentTargetPoint = TargetPoints[i + 1];
 				break;
 			}
 			else
@@ -129,7 +122,6 @@ void AFPSAIGuard::MoveToNextPatrolPoint()
 				CurrentTargetPoint = TargetPoints[0];
 				break;
 			}
-
 		}
 	}
 
@@ -141,7 +133,6 @@ void AFPSAIGuard::MoveToNextPatrolPoint()
 void AFPSAIGuard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
 
 	if (CurrentTargetPoint)
 	{
@@ -153,7 +144,7 @@ void AFPSAIGuard::Tick(float DeltaTime)
 			MoveToNextPatrolPoint();
 		}
 	}
-	
+
 	/*if (bPatrol)
 	{
 		FVector TargetDistance = TargetPoints[0]->GetActorLocation() - TargetPoints[1]->GetActorLocation();
@@ -161,32 +152,26 @@ void AFPSAIGuard::Tick(float DeltaTime)
 		UE_LOG(LogTemp, Warning, TEXT("The distance between targetpoints is  %f"), x);
 
 	}*/
-	
-
 }
 
 //Set Guard new state
-void  AFPSAIGuard::SetGuardState(EGuardState NewState)
+void AFPSAIGuard::SetGuardState(EGuardState NewState)
 {
 	if (GuardState == NewState)
 	{
 		return;
 	}
 	GuardState = NewState;
-	
+
 	OnRep_GuardStateChange();
 }
 
-
-
-void AFPSAIGuard::OnRep_GuardStateChange() 
+void AFPSAIGuard::OnRep_GuardStateChange()
 {
 	OnGuardStateChange(GuardState);
 }
 
-
-
-void AFPSAIGuard::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+void AFPSAIGuard::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AFPSAIGuard, GuardState);

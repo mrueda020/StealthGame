@@ -49,9 +49,9 @@ void AFPSProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 	
 	}
 	//We check if we are in the host because AI only runs on server
-	if (Role == ROLE_Authority)
+	if (HasAuthority())
 	{
-		MakeNoise(1.0f, Instigator);
+		MakeNoise(1.0f, GetInstigator());
 		PlayEffects(ExplosionEffect);
 		Destroy();
 	}

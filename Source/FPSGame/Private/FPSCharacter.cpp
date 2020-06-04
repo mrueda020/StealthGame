@@ -14,15 +14,15 @@ AFPSCharacter::AFPSCharacter()
 	// Create a CameraComponent	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	CameraComponent->SetupAttachment(GetCapsuleComponent());
-	CameraComponent->RelativeLocation = FVector(0, 0, BaseEyeHeight); // Position the camera
+	CameraComponent->SetRelativeLocation(FVector(0, 0, BaseEyeHeight)); // Position the camera
 	CameraComponent->bUsePawnControlRotation = true;
 
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
 	Mesh1PComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh"));
 	Mesh1PComponent->SetupAttachment(CameraComponent);
 	Mesh1PComponent->CastShadow = false;
-	Mesh1PComponent->RelativeRotation = FRotator(2.0f, -15.0f, 5.0f);
-	Mesh1PComponent->RelativeLocation = FVector(0, 0, -160.0f);
+	Mesh1PComponent->SetRelativeLocationAndRotation(FVector(0, 0, -160.0f),FRotator(2.0f, -15.0f, 5.0f));
+	
 
 	// Create a gun mesh component
 	GunMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
@@ -38,7 +38,7 @@ void AFPSCharacter::Tick(float DeltaTime)
 	//We check is the character is a client or is the host
 	if (!IsLocallyControlled())
 	{   //RemoteViewPitch is a replicated property, so that you can see where remote clients are looking
-		FRotator ClientRotation = CameraComponent->RelativeRotation;
+		FRotator ClientRotation = CameraComponent->GetRelativeRotation();
 		//We multiply by 360.0f and divde by 255.0f because RemoteViewPitch is compressed to 1 byte 
 		ClientRotation.Pitch = RemoteViewPitch * 360.0f / 255.0f;
 		//We set the new rotation
